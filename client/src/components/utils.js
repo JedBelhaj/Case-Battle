@@ -107,6 +107,11 @@ export const RNG = (caseData) => {
   };
 };
 
+export function selectRare(caseDate) {
+  const knives = caseDate.contains_rare;
+  return randomChoice(knives);
+}
+
 export const openCase = (caseData) => {
   const items = caseData.contains;
   const luck = RNG(caseData);
@@ -118,11 +123,12 @@ export const openCase = (caseData) => {
   const filteredItems = items.filter((x) => x.rarity.color === luck.rarity);
   if (filteredItems.length === 0) return [null, luck];
 
-  return [
-    filteredItems[Math.floor(Math.random() * filteredItems.length)],
-    luck,
-  ];
+  return [randomChoice(filteredItems), luck];
 };
+
+function randomChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 export function getCrateRarities(crate) {
   if (crate) {

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { openCase, cs2RarityColors, getCrateRarities } from "./utils";
+import {
+  openCase,
+  cs2RarityColors,
+  getCrateRarities,
+  selectRare,
+} from "./utils";
 
 function Case(props) {
   const { caseData } = props;
@@ -12,6 +17,7 @@ function Case(props) {
     " translate-x-[380rem] duration-[0] "
   );
   const [alts, setAlts] = useState([]);
+  const [rareOpen, setRareOpen] = useState(false);
 
   useEffect(() => {
     if (caseData) {
@@ -25,6 +31,7 @@ function Case(props) {
     setTranslate(" translate-x-[-313rem]  duration-[4000ms] ");
     setTimeout(() => {
       setOpen(false);
+      setRareOpen(false);
       setTranslate(" translate-x-[380rem] duration-[0] ");
     }, 6000);
   };
@@ -32,6 +39,13 @@ function Case(props) {
   useEffect(() => {
     if (open) {
       let alts = [...Array(59)].map(() => openCase(caseData));
+
+      // getting rare simulation
+      alts[54][0] = "rare";
+
+      if (alts[54][0] == "rare") {
+        setRareOpen(true);
+      }
 
       const rares = alts.filter((x) => x[0] === "rare");
 
@@ -54,6 +68,9 @@ function Case(props) {
 
   useEffect(() => {
     if (alts.length === 59 && open) {
+      if (alts[54][0] === "rare") {
+        alts[54][0] = selectRare(caseData);
+      }
       setItemsOpened((prev) => [...prev, alts[54]]);
       console.log(alts[54]);
     }
@@ -130,7 +147,9 @@ function Case(props) {
                   style={{ color: skinData?.rarity?.color }}
                   className="text-white max-w-24 text-center"
                 >
-                  {skinData?.name}
+                  {(luck.statTrack ? "StatTrack " : "") +
+                    skinData?.name +
+                    (skinData.phase ? " (" + skinData.phase + ")" : "")}
                 </p>
               </div>
             );
@@ -151,7 +170,8 @@ function Case(props) {
         >
           {alts.map((x, index) => {
             const item = x[0];
-            if (item === "rare") {
+
+            if (rareOpen && index == 54) {
               return (
                 <img
                   key={index}
