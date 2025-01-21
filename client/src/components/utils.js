@@ -9,6 +9,14 @@ export const cs2RarityColors = {
   rare: ["Exceedingly Rare", "Rare"],
 };
 
+const cachedSkinData = await fetch(
+  "https://bymykel.github.io/CSGO-API/api/en/skins.json"
+).then((res) => res.json());
+
+function getSkinData(skinID) {
+  return cachedSkinData.find((x) => x.id === skinID);
+}
+
 const odds = {
   Case: {
     "#4b69ff": 79.92,
@@ -71,19 +79,20 @@ function statTrack() {
 }
 
 function selectFloat(minFloat, maxFloat) {
-  let float = Math.random() * (maxFloat - minFloat) + minFloat;
+  let luck = Math.random() * (maxFloat - minFloat) + minFloat;
   let wear = "";
-  if (float < 0.03) {
+  let float;
+  if (luck < 0.03) {
     float = Math.random() * 0.07;
     wear = "Factory New";
-  } else if (float < 0.27) {
-    float = Math.random() * 0.8 + 0.07;
+  } else if (luck < 0.27) {
+    float = Math.random() * 0.08 + 0.07;
     wear = "Minimal Wear";
-  } else if (float < 0.6) {
+  } else if (luck < 0.6) {
     float = Math.random() * 0.23 + 0.15;
     wear = "Field Tested";
-  } else if (float < 0.84) {
-    float = Math.random() * 0.07 + 0.45;
+  } else if (luck < 0.84) {
+    float = Math.random() * 0.07 + 0.38;
     wear = "Well Worn";
   } else {
     float = Math.random() * 0.55 + 0.45;
@@ -97,12 +106,10 @@ function selectPaintIndex() {
 }
 
 export const RNG = (caseData) => {
-  const { float, wear } = selectFloat();
   return {
     rarity: selectRarity(caseData),
     statTrack: statTrack(),
-    float,
-    wear,
+
     pattern: selectPaintIndex(),
   };
 };
@@ -122,8 +129,13 @@ export const openCase = (caseData) => {
 
   const filteredItems = items.filter((x) => x.rarity.color === luck.rarity);
   if (filteredItems.length === 0) return [null, luck];
+  const skin = getSkinData(randomChoice(filteredItems).id);
+  const { float, wear } = selectFloat(skin.min_float, skin.max_float);
 
-  return [randomChoice(filteredItems), luck];
+  luck["float"] = float;
+  luck["wear"] = wear;
+
+  return [skin, luck];
 };
 
 function randomChoice(arr) {
