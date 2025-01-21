@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import Case from "./Case";
+import { getAllRarities, getCrateRarities } from "./utils";
 
 function MainWindow() {
   const [cases, setCases] = useState([]);
@@ -11,7 +12,12 @@ function MainWindow() {
     fetch("https://bymykel.github.io/CSGO-API/api/en/crates.json")
       .then((res) => res.json())
       .then((data) => {
-        setCases(data);
+        setCases(
+          data.filter(
+            (x) =>
+              ["Case", "Sticker Capsule", "Souvenir"].indexOf(x.type) !== -1
+          )
+        );
         // Set initial chosen case if data is available
         if (data.length > 0) {
           setChosenCase(data[0].name);

@@ -1,91 +1,52 @@
 import { useEffect, useState } from "react";
+import { openCase, cs2RarityColors, getCrateRarities } from "./utils";
 
 function Case(props) {
   const { caseData } = props;
-  const [itemsOpened, setItemsOpened] = useState([]);
 
+  const [rarities, setRarities] = useState([]);
+  const [itemsOpened, setItemsOpened] = useState([]);
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
-  const [translate, setTranslate] = useState(" translate-x-[-96rem] ");
+  const [translate, setTranslate] = useState(
+    " translate-x-[380rem] duration-[0] "
+  );
   const [alts, setAlts] = useState([]);
 
   useEffect(() => {
     if (caseData) {
       setItems(caseData.contains);
+      setRarities(getCrateRarities(caseData));
     }
   }, [caseData]);
 
-  const RNG = () => {
-    let rarity = Math.random();
-    if (rarity < 0.0025575) {
-      rarity = "Special Item";
-    } else if (rarity < 0.0089514) {
-      rarity = "#eb4b4b";
-    } else if (rarity < 0.0409207) {
-      rarity = "#d32ce6";
-    } else if (rarity < 0.2007672) {
-      rarity = "#8847ff";
-    } else {
-      rarity = "#4b69ff";
-    }
-    let statTrack = Math.random();
-    statTrack = statTrack <= 0.1;
-
-    let float = Math.random();
-    let wear;
-    if (float < 0.03) {
-      float = Math.random() * 0.07;
-      wear = "Factory New";
-    } else if (float < 0.27) {
-      float = Math.random() * 0.8 + 0.07;
-      wear = "Minimal Wear";
-    } else if (float < 0.6) {
-      float = Math.random() * 0.23 + 0.15;
-      wear = "Field Tested";
-    } else if (float < 0.84) {
-      float = Math.random() * 0.07 + 0.45;
-      wear = "Well Worn";
-    } else {
-      float = Math.random() * 0.55 + 0.45;
-      wear = "Battle Scarred";
-    }
-    return {
-      rarity: rarity,
-      statTrack: statTrack,
-      float: float,
-      wear: wear,
-      pattern: Math.floor(Math.random() * 1000),
-    };
-  };
-
-  const openCase = () => {
-    const luck = RNG();
-    const filteredItems = items.filter((x) => x.rarity.color === luck.rarity);
-
-    if (filteredItems.length === 0) return [null, luck]; // Avoid empty filteredItems
-
-    return [
-      filteredItems[Math.floor(Math.random() * filteredItems.length)],
-      luck,
-    ];
-  };
   const openCaseAnimation = () => {
     setOpen(true);
-    setTimeout(() => {
-      setTranslate(" translate-x-[-675rem] ");
-    }, 100);
-    setTranslate(" translate-x-[-96rem] ");
+    setTranslate(" translate-x-[-313rem]  duration-[4000ms] ");
     setTimeout(() => {
       setOpen(false);
+      setTranslate(" translate-x-[380rem] duration-[0] ");
     }, 6000);
   };
 
   useEffect(() => {
     if (open) {
-      setAlts([...Array(59)].map(() => openCase()));
-      alts.forEach((x, index) => {
-        console.log(index + " " + x[0].name);
-      });
+      let alts = [...Array(59)].map(() => openCase(caseData));
+
+      const rares = alts.filter((x) => x[0] === "rare");
+
+      // handle rares
+
+      for (let i = 0; i < rares.length; i++) {
+        const rareIndex = alts.indexOf(rares[i]);
+        if (rareIndex != 54) {
+          while (alts[rareIndex][0] === "rare") {
+            alts[rareIndex] = openCase(caseData);
+          }
+        }
+      }
+
+      setAlts(alts);
     } else {
       setAlts([]);
     }
@@ -98,25 +59,39 @@ function Case(props) {
     }
   }, [alts, open]);
 
+  const simulation = (types) => {
+    const cases = [...Array(1000)].map(() => openCase(caseData));
+    return types.map((x) => [x, cases.filter((y) => y[1].rarity === x).length]);
+  };
+
   if (!caseData) {
     return <div>No case selected</div>;
   }
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center items-center flex-col">
       <div
-        className={
-          "flex flex-col items-center justify-center transition-all" +
-          (open ? " hidden " : "")
-        }
+        className={`
+          flex flex-col items-center justify-center transition-all 
+          ${open ? " hidden " : ""}`}
       >
+        <div className="flex flex-col items-center text-white">
+          Simulation with 1000 cases, you would get
+          {simulation(rarities).map((x, index) => (
+            <strong
+              key={index}
+              style={{ color: x[0] === "rare" ? "#e8c40c" : x[0] }}
+            >
+              {" " + x[1] + " " + cs2RarityColors[x[0]][0] + " "}
+            </strong>
+          ))}
+        </div>
         {/* case */}
         <img
           onClick={openCaseAnimation}
           className="w-72 p-4 hover:scale-110 transition-all duration-150 ease-out cursor-pointer "
           src={caseData.image}
         />
-
         <p className="text-yellow-400 animate-bounce ">↑ click to open ↑</p>
         {/* items */}
         <div className="flex flex-wrap m-10 gap-4 p-4">
@@ -148,45 +123,55 @@ function Case(props) {
               >
                 <img
                   className="w-28 "
-                  src={skinData.image}
-                  alt={skinData.name}
+                  src={skinData?.image}
+                  alt={skinData?.name}
                 />
                 <p
-                  style={{ color: skinData.rarity.color }}
+                  style={{ color: skinData?.rarity?.color }}
                   className="text-white max-w-24 text-center"
                 >
-                  {skinData.name}
+                  {skinData?.name}
                 </p>
               </div>
             );
           })}
         </div>
       </div>
-
       {/* slot machine */}
-      <div className="flex items-center justify-center overflow-clip ">
+      <div className={`flex items-center justify-center overflow-clip`}>
         <div
-          className={` border-x-2 border-white rounded-full opacity-40 translate-x-[7.9svw] h-32 z-50 ${
+          className={`w-1 h-32 rounded-full opacity-40 bg-white absolute z-50  ${
             open ? "" : " hidden "
-          } `}
+          }`}
         ></div>
-        <div className={`w-1/5  ${open ? "" : " hidden "}`}>
-          <div
-            className={`flex-row flex transition-all float-left -z-50 ease-out duration-[4000ms] ${translate} `}
-          >
-            {alts.map((x, index) => {
-              const item = x[0];
+        <div
+          className={`
+          flex items-center justify-center ease-out transition-all
+          ${" " + translate}`}
+        >
+          {alts.map((x, index) => {
+            const item = x[0];
+            if (item === "rare") {
               return (
                 <img
                   key={index}
-                  style={{ borderTopColor: item?.rarity.color }}
-                  className={`w-[192px] border-t-2 m-1 -z-50`}
-                  src={item?.image}
-                  alt={item?.name}
+                  style={{ borderTopColor: "#e8c40c" }}
+                  src="assets/rare.png"
+                  className={`w-48 border-t-2 m-1 -z-50`}
+                  alt="rare item"
                 />
               );
-            })}
-          </div>
+            }
+            return (
+              <img
+                key={index}
+                style={{ borderTopColor: item?.rarity.color }}
+                className={`w-48 border-t-2 m-1 -z-50`}
+                src={item?.image}
+                alt={item?.name}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
