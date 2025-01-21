@@ -11,40 +11,58 @@ export const cs2RarityColors = {
 
 const odds = {
   Case: {
-    "Mil-Spec": 79.92,
-    Restricted: 15.98,
-    Classified: 3.2,
-    Covert: 0.64,
-    "Exceedingly Rare": 0.26,
+    "#4b69ff": 79.92,
+    "#8847ff": 15.98,
+    "#d32ce6": 3.2,
+    "#eb4b4b": 0.64,
+    rare: 0.26,
   },
   Souvenir: {
-    "Consumer Grade": 80,
-    "Industrial Grade": 16,
-    "Mil-Spec": 3.2,
-    Restricted: 0.64,
-    Classified: 0.128,
-    Covert: 0.256,
+    "#b0c3d9": 80,
+    "#5e98d9": 16,
+    "#4b69ff": 3.2,
+    "#8847ff": 0.64,
+    "#d32ce6": 0.128,
+    "#eb4b4b": 0.256,
   },
-  Capsule: {
-    "Mil-Spec": 80,
-    Restricted: 16,
-    Classified: 3.2,
-    Covert: 0.641,
+  "Sticker Capsule": {
+    "#4b69ff": 80,
+    "#8847ff": 16,
+    "#d32ce6": 3.2,
+    "#eb4b4b": 0.641,
   },
 };
 
 export function selectRarity(caseData) {
   const rarities = getCrateRarities(caseData);
 
-  const random = Math.random();
+  // Ensure rarities are in descending probability order
+  rarities.sort((a, b) => odds[caseData.type][b] - odds[caseData.type][a]);
+
+  const random = Math.random(); // Random value between 0 and 1
   let cumulative = 0;
 
   for (let i = 0; i < rarities.length; i++) {
-    cumulative += odds[caseData.type][rarities[i]];
+    const rarity = rarities[i];
+    const rarityOdds = odds[caseData.type][rarity];
+
+    if (rarityOdds === undefined) {
+      console.error(
+        `Rarity "${rarity}" not found in odds for case type "${caseData.type}".`
+      );
+      continue;
+    }
+
+    cumulative += rarityOdds / 100; // Normalize odds to a 0-1 range
     if (random < cumulative) {
-      return rarities[i];
+      return rarity;
     }
   }
+
+  // Default fallback: return the lowest rarity
+  // console.warn(
+  //   `Defaulting to last rarity. Random: ${random}, Cumulative: ${cumulative}`
+  // );
   return rarities[rarities.length - 1];
 }
 
@@ -112,8 +130,7 @@ export function getCrateRarities(crate) {
     if (crate.contains_rare.length > 0) {
       rarities.push("rare");
     }
-    // Ensure rarities are in the correct order
-    return rarities.sort((a, b) => odds[crate.type][b] - odds[crate.type][a]);
+    return rarities.reverse();
   }
 }
 
