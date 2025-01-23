@@ -19,7 +19,7 @@ function Item({ skinData, luck }) {
   return (
     <div className="group relative m-2 h-32 w-32 flex items-center justify-start flex-col hover:scale-110 hover:z-50 transition-all duration-150 ease-in-out cursor-default text-sm overflow-visible ">
       {/* Info Icon and Box */}
-      {!skinData.id.startsWith("sticker") ? (
+      {!skinData?.id?.startsWith("sticker") ? (
         <div className="absolute right-[-1rem] flex items-start justify-end ">
           <FaInfoCircle
             className="m-1 text-lg cursor-pointer group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
@@ -31,7 +31,7 @@ function Item({ skinData, luck }) {
             <div
               onMouseEnter={() => showInfo(true)}
               onMouseLeave={() => showInfo(false)}
-              className="absolute right-6 h-32 w-fit overflow-scroll flex flex-col backdrop-blur-md transition-all duration-300  bg-white/20 text-white rounded p-2 text-xs z-[9999] shadow-lg"
+              className="absolute right-6 h-32 w-[9.5rem] overflow-scroll flex flex-col backdrop-blur-md transition-all duration-300  bg-white/20 text-white rounded p-2 text-xs z-[9999] shadow-lg"
             >
               <p
                 className=" p-1 rounded-md text-center"

@@ -6,15 +6,20 @@ import {
   getCrateRarities,
   selectRare,
 } from "./utils";
+import UnboxedItem from "./UnboxedItem";
 
 function Case(props) {
-  //TODO : fix animation lag
+  /*
+  TODO :- add Skip Animation (DONE)
+        - add Unboxing Animation
+        - add Search and Sort for the Items Opened
+        - add Views for the Items Opened
+  */
   const timeOutRef = useRef(null);
   const simulationSample = 3000;
   const { caseData } = props;
-
   const [rarities, setRarities] = useState([]);
-  const [itemsOpened, setItemsOpened] = useState([]);
+  const [itemsOpen, setItemsOpen] = useState([]);
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [translate, setTranslate] = useState(
@@ -22,7 +27,17 @@ function Case(props) {
   );
   const [alts, setAlts] = useState([]);
   const [rareOpen, setRareOpen] = useState(false);
-  const [key, setKey] = useState("");
+  const [unbox, setUnbox] = useState(false);
+
+  useEffect(() => {
+    if (itemsOpen.length !== 0) {
+      if (open) {
+        setUnbox(false);
+      } else {
+        setUnbox(true);
+      }
+    }
+  }, [open]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -33,6 +48,9 @@ function Case(props) {
           clearTimeout(timeOutRef);
           cleanUpCaseAnimation();
         }
+      }
+      if (e.key === "Escape") {
+        setUnbox(false);
       }
     };
 
@@ -52,6 +70,8 @@ function Case(props) {
   }, [caseData]);
 
   const cleanUpCaseAnimation = () => {
+    // FIXME animation lag
+
     setOpen(false);
     setRareOpen(false);
     setTranslate(" translate-x-[380rem] duration-[0] ");
@@ -62,7 +82,7 @@ function Case(props) {
   const openCaseAnimation = () => {
     setOpen(true);
     setTranslate(" translate-x-[-313rem]  duration-[4000ms] ");
-    timeOutRef.current = setTimeout(() => cleanUpCaseAnimation(), 6000);
+    timeOutRef.current = setTimeout(() => cleanUpCaseAnimation(), 4500);
   };
 
   useEffect(() => {
@@ -70,6 +90,7 @@ function Case(props) {
       let alts = [...Array(59)].map(() => openCase(caseData));
 
       // getting rare simulation
+      alts[54][0] = "rare";
 
       if (alts[54][0] == "rare") {
         setRareOpen(true);
@@ -99,7 +120,7 @@ function Case(props) {
       if (alts[54][0] === "rare") {
         alts[54][0] = selectRare(caseData);
       }
-      setItemsOpened((prev) => [...prev, alts[54]]);
+      setItemsOpen((prev) => [...prev, alts[54]]);
       console.log(alts[54]);
     }
   }, [alts, open]);
@@ -110,7 +131,15 @@ function Case(props) {
   };
 
   const mockup = (types) => {
-    return [...Array(30)].map(() => openCase(caseData));
+    return [...Array(1000)].map(() => {
+      const item = openCase(caseData);
+      console.log(item);
+
+      if (item[0] === "rare") {
+        item[0] = selectRare(caseData);
+      }
+      return item;
+    });
   };
 
   if (!caseData) {
@@ -141,7 +170,9 @@ function Case(props) {
           className="w-72 p-4 hover:scale-110 transition-all duration-150 ease-out cursor-pointer "
           src={caseData.image}
         />
-        <p className="text-yellow-400 animate-bounce ">↑ click to open ↑</p>
+        <p className="text-yellow-400 animate-bounce ">
+          ↑ click or press Enter to open ↑
+        </p>
         {/* items */}
         <div className="flex flex-wrap m-10 gap-4 p-4 items-center justify-center">
           {caseData.contains.map((x) => (
@@ -164,13 +195,19 @@ function Case(props) {
         <h1 className="text-yellow-400 text-xl mt-8">Items you Opened:</h1>
 
         <div className="flex flex-wrap items-center justify-center m-10 overflow-y-scroll max-h-60 gap-4 p-4 w-full">
-          {itemsOpened.map((x, index) => {
+          {itemsOpen.map((x, index) => {
             const [skinData, luck] = x;
             return <Item key={index} skinData={skinData} luck={luck} />;
           })}
         </div>
       </div>
       {/* slot machine */}
+      {open && (
+        <p className="text-yellow-400 animate-bounce my-2">
+          press Enter to skip animation
+        </p>
+      )}
+
       <div className={`flex items-center justify-center overflow-clip`}>
         <div
           className={`w-1 h-32 rounded-full opacity-40 bg-white absolute z-50  ${
@@ -208,6 +245,9 @@ function Case(props) {
           })}
         </div>
       </div>
+      {unbox && (
+        <UnboxedItem unbox={unbox} item={itemsOpen[itemsOpen.length - 1]} />
+      )}
     </div>
   );
 }

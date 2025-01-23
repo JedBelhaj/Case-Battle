@@ -9,6 +9,22 @@ export const cs2RarityColors = {
   rare: ["Exceedingly Rare", "Rare"],
 };
 
+export function addHexColor(c1, c2) {
+  // Remove the '#' symbol if present
+  c1 = c1.startsWith("#") ? c1.slice(1) : c1;
+  c2 = c2.startsWith("#") ? c2.slice(1) : c2;
+
+  // Add the two hex colors
+  let hexStr = (parseInt(c1, 16) + parseInt(c2, 16)).toString(16);
+
+  // Zero pad to ensure the result is 6 characters long
+  while (hexStr.length < 6) {
+    hexStr = "0" + hexStr;
+  }
+
+  return `#${hexStr}`; // Return the result with a '#' prefix
+}
+
 const cachedSkinData = await fetch(
   "https://bymykel.github.io/CSGO-API/api/en/skins.json"
 ).then((res) => res.json());
