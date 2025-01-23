@@ -41,6 +41,7 @@ function Item({ skinData, luck }) {
             <p>StatTrack: {luck.statTrack ? "yes" : "no"}</p>
             <p>Wear: {luck.wear}</p>
             <p>Float: {luck.float}</p>
+            <p>Pattern: {luck.pattern}</p>
           </div>
         )}
       </div>

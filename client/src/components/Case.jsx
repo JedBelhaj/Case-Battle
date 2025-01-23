@@ -136,7 +136,7 @@ function Case(props) {
         <h1 className="text-yellow-400 text-xl mt-8">Items you Opened:</h1>
 
         <div className="flex flex-wrap items-center justify-center m-10 overflow-y-scroll max-h-60 gap-4 p-4 w-full">
-          {mockup(rarities).map((x, index) => {
+          {itemsOpened.map((x, index) => {
             const [skinData, luck] = x;
             return <Item key={index} skinData={skinData} luck={luck} />;
           })}
