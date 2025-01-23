@@ -31,7 +31,7 @@ const odds = {
     "#4b69ff": 3.2,
     "#8847ff": 0.64,
     "#d32ce6": 0.128,
-    "#eb4b4b": 0.256,
+    "#eb4b4b": 0.0256,
   },
   "Sticker Capsule": {
     "#4b69ff": 80,
@@ -128,11 +128,18 @@ export const openCase = (caseData) => {
 
   const filteredItems = items.filter((x) => x.rarity.color === luck.rarity);
   if (filteredItems.length === 0) return [null, luck];
-  const skin = getSkinData(randomChoice(filteredItems).id);
-  const { float, wear } = selectFloat(skin.min_float, skin.max_float);
 
-  luck["float"] = float.toFixed(14);
-  luck["wear"] = wear;
+  let skin = randomChoice(filteredItems);
+
+  if (caseData.type !== "Sticker Capsule") {
+    skin = getSkinData(skin.id);
+  }
+  if (caseData.type === "Case") {
+    const { float, wear } = selectFloat(skin.min_float, skin.max_float);
+
+    luck["float"] = float.toFixed(14);
+    luck["wear"] = wear;
+  }
 
   return [skin, luck];
 };

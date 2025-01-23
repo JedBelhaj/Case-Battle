@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Item from "./Item";
 import {
   openCase,
@@ -8,6 +8,9 @@ import {
 } from "./utils";
 
 function Case(props) {
+  //TODO : fix animation lag
+  const timeOutRef = useRef(null);
+  const simulationSample = 3000;
   const { caseData } = props;
 
   const [rarities, setRarities] = useState([]);
@@ -19,6 +22,27 @@ function Case(props) {
   );
   const [alts, setAlts] = useState([]);
   const [rareOpen, setRareOpen] = useState(false);
+  const [key, setKey] = useState("");
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        if (!open) {
+          openCaseAnimation();
+        } else {
+          clearTimeout(timeOutRef);
+          cleanUpCaseAnimation();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (caseData) {
@@ -27,14 +51,18 @@ function Case(props) {
     }
   }, [caseData]);
 
+  const cleanUpCaseAnimation = () => {
+    setOpen(false);
+    setRareOpen(false);
+    setTranslate(" translate-x-[380rem] duration-[0] ");
+    if (timeOutRef.current) {
+      clearTimeout(timeOutRef.current);
+    }
+  };
   const openCaseAnimation = () => {
     setOpen(true);
     setTranslate(" translate-x-[-313rem]  duration-[4000ms] ");
-    setTimeout(() => {
-      setOpen(false);
-      setRareOpen(false);
-      setTranslate(" translate-x-[380rem] duration-[0] ");
-    }, 6000);
+    timeOutRef.current = setTimeout(() => cleanUpCaseAnimation(), 6000);
   };
 
   useEffect(() => {
@@ -77,7 +105,7 @@ function Case(props) {
   }, [alts, open]);
 
   const simulation = (types) => {
-    const cases = [...Array(1000)].map(() => openCase(caseData));
+    const cases = [...Array(simulationSample)].map(() => openCase(caseData));
     return types.map((x) => [x, cases.filter((y) => y[1].rarity === x).length]);
   };
 
@@ -97,7 +125,7 @@ function Case(props) {
           ${open ? " hidden " : ""}`}
       >
         <div className="flex flex-col items-center text-white">
-          Simulation with 1000 cases, you would get
+          Simulation with {simulationSample} cases, you would get
           {simulation(rarities).map((x, index) => (
             <strong
               key={index}

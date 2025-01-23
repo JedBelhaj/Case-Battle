@@ -6,9 +6,9 @@ function Item({ skinData, luck }) {
 
   // Extract dynamic styles
   const rarityColor = skinData?.rarity?.color || "#ffffff"; // Default to white if no color
-  const itemName = `${luck.statTrack ? "StatTrak™ " : ""}${skinData?.name}${
-    skinData?.phase ? ` (${skinData.phase})` : ""
-  }`;
+  const itemName = `${skinData.souvenir ? "Souvenir " : ""} ${
+    luck.statTrack ? "StatTrak™ " : ""
+  }${skinData?.name}${skinData?.phase ? ` (${skinData.phase})` : ""}`;
 
   const showInfo = (hover) => {
     setTimeout(() => {
@@ -19,32 +19,42 @@ function Item({ skinData, luck }) {
   return (
     <div className="group relative m-2 h-32 w-32 flex items-center justify-start flex-col hover:scale-110 hover:z-50 transition-all duration-150 ease-in-out cursor-default text-sm overflow-visible ">
       {/* Info Icon and Box */}
-      <div className="absolute right-[-1rem] flex items-start justify-end ">
-        <FaInfoCircle
-          className="m-1 text-lg cursor-pointer group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
-          color={rarityColor}
-          onMouseEnter={() => showInfo(true)}
-          onMouseLeave={() => showInfo(false)}
-        />
-        {hover && (
-          <div
+      {!skinData.id.startsWith("sticker") ? (
+        <div className="absolute right-[-1rem] flex items-start justify-end ">
+          <FaInfoCircle
+            className="m-1 text-lg cursor-pointer group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out"
+            color={rarityColor}
             onMouseEnter={() => showInfo(true)}
             onMouseLeave={() => showInfo(false)}
-            className="absolute right-6 h-32 w-fit overflow-scroll flex flex-col backdrop-blur-md transition-all duration-300  bg-white/20 text-white rounded p-2 text-xs z-[9999] shadow-lg"
-          >
-            <p
-              className=" p-1 rounded-md text-center"
-              style={{ backgroundColor: rarityColor }}
+          />
+          {hover && (
+            <div
+              onMouseEnter={() => showInfo(true)}
+              onMouseLeave={() => showInfo(false)}
+              className="absolute right-6 h-32 w-fit overflow-scroll flex flex-col backdrop-blur-md transition-all duration-300  bg-white/20 text-white rounded p-2 text-xs z-[9999] shadow-lg"
             >
-              {skinData.name}
-            </p>
-            <p>StatTrack: {luck.statTrack ? "yes" : "no"}</p>
-            <p>Wear: {luck.wear}</p>
-            <p>Float: {luck.float}</p>
-            <p>Pattern: {luck.pattern}</p>
-          </div>
-        )}
-      </div>
+              <p
+                className=" p-1 rounded-md text-center"
+                style={{ backgroundColor: rarityColor }}
+              >
+                {skinData.name}
+              </p>
+              {!Item.souvenir ? (
+                <div>
+                  <p>StatTrack: {luck.statTrack ? "yes" : "no"}</p>
+                  <p>Wear: {luck.wear}</p>
+                  <p>Float: {luck.float}</p>
+                  <p>Pattern: {luck.pattern}</p>{" "}
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <></>
+      )}
 
       {/* Item Image */}
       <img

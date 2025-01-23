@@ -55,7 +55,13 @@ function MainWindow() {
   }, [currType, sortedCases]);
 
   return (
-    <div className="w-full bg-zinc-900 flex flex-col items-center justify-start p-4 ">
+    <div
+      onKeyDown={(e) => {
+        e.persist();
+        console.log(e);
+      }}
+      className="w-full bg-zinc-900 flex flex-col items-center justify-start p-4 "
+    >
       <div className="bg-yellow-600 w-full h-fit p-3 rounded-3xl flex justify-between items-center">
         <h1 className="font-bold font-mono">Gambalé Gambamé</h1>
         <div className="flex items-center justify-center flex-col">
