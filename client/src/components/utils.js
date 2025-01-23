@@ -109,7 +109,6 @@ export const RNG = (caseData) => {
   return {
     rarity: selectRarity(caseData),
     statTrack: statTrack(),
-
     pattern: selectPaintIndex(),
   };
 };
@@ -132,7 +131,7 @@ export const openCase = (caseData) => {
   const skin = getSkinData(randomChoice(filteredItems).id);
   const { float, wear } = selectFloat(skin.min_float, skin.max_float);
 
-  luck["float"] = float;
+  luck["float"] = float.toFixed(14);
   luck["wear"] = wear;
 
   return [skin, luck];

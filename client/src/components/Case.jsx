@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Item from "./Item";
 import {
   openCase,
   cs2RarityColors,
@@ -41,7 +42,6 @@ function Case(props) {
       let alts = [...Array(59)].map(() => openCase(caseData));
 
       // getting rare simulation
-      alts[54][0] = "rare";
 
       if (alts[54][0] == "rare") {
         setRareOpen(true);
@@ -81,15 +81,19 @@ function Case(props) {
     return types.map((x) => [x, cases.filter((y) => y[1].rarity === x).length]);
   };
 
+  const mockup = (types) => {
+    return [...Array(30)].map(() => openCase(caseData));
+  };
+
   if (!caseData) {
     return <div>No case selected</div>;
   }
 
   return (
-    <div className="flex justify-center items-center flex-col">
+    <div className="flex justify-center items-center flex-col w-full">
       <div
         className={`
-          flex flex-col items-center justify-center transition-all 
+          flex flex-col items-center justify-center transition-all w-full 
           ${open ? " hidden " : ""}`}
       >
         <div className="flex flex-col items-center text-white">
@@ -111,7 +115,7 @@ function Case(props) {
         />
         <p className="text-yellow-400 animate-bounce ">↑ click to open ↑</p>
         {/* items */}
-        <div className="flex flex-wrap m-10 gap-4 p-4">
+        <div className="flex flex-wrap m-10 gap-4 p-4 items-center justify-center">
           {caseData.contains.map((x) => (
             <div
               key={x.name}
@@ -130,29 +134,11 @@ function Case(props) {
 
         {/* items you opened */}
         <h1 className="text-yellow-400 text-xl mt-8">Items you Opened:</h1>
-        <div className="flex flex-wrap m-10 overflow-scroll max-h-60 gap-4 p-4">
-          {itemsOpened.map((x, index) => {
+
+        <div className="flex flex-wrap items-center justify-center m-10 overflow-y-scroll max-h-60 gap-4 p-4 w-full">
+          {mockup(rarities).map((x, index) => {
             const [skinData, luck] = x;
-            return (
-              <div
-                key={index}
-                className="flex items-center justify-start flex-col hover:scale-110 transition-all duration-150 ease-in-out cursor-default text-sm"
-              >
-                <img
-                  className="w-28 "
-                  src={skinData?.image}
-                  alt={skinData?.name}
-                />
-                <p
-                  style={{ color: skinData?.rarity?.color }}
-                  className="text-white max-w-24 text-center"
-                >
-                  {(luck.statTrack ? "StatTrack " : "") +
-                    skinData?.name +
-                    (skinData.phase ? " (" + skinData.phase + ")" : "")}
-                </p>
-              </div>
-            );
+            return <Item key={index} skinData={skinData} luck={luck} />;
           })}
         </div>
       </div>
