@@ -9,6 +9,16 @@ export const cs2RarityColors = {
   rare: ["Exceedingly Rare", "Rare"],
 };
 
+export const getCases = await fetch(
+  "https://bymykel.github.io/CSGO-API/api/en/crates.json"
+)
+  .then((res) => res.json())
+  .then((data) =>
+    data.filter(
+      (x) => ["Case", "Sticker Capsule", "Souvenir"].indexOf(x.type) !== -1
+    )
+  );
+
 export function addHexColor(c1, c2) {
   // Remove the '#' symbol if present
   c1 = c1.startsWith("#") ? c1.slice(1) : c1;
@@ -25,7 +35,7 @@ export function addHexColor(c1, c2) {
   return `#${hexStr}`; // Return the result with a '#' prefix
 }
 
-const cachedSkinData = await fetch(
+export const cachedSkinData = await fetch(
   "https://bymykel.github.io/CSGO-API/api/en/skins.json"
 ).then((res) => res.json());
 
@@ -172,6 +182,11 @@ export function getCrateRarities(crate) {
     }
     return rarities.reverse();
   }
+}
+
+export function getItemsRarities(items) {
+  const rarities = items.map((x) => x.rarity.color).filter(unique);
+  return rarities.reverse();
 }
 
 function unique(x, index, arr) {

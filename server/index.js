@@ -10,11 +10,17 @@ app.use(cors);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
 
+io.on("connection", (socket) => {
+  log("User connected: ", socket.id);
+});
+
+io.on("disconnection");
+
 server.listen(3001, () => {
-  console.log("listetning");
+  log("listening...");
 });

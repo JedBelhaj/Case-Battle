@@ -7,11 +7,15 @@ import {
   selectRare,
 } from "./utils";
 import UnboxedItem from "./UnboxedItem";
+import ItemsOpened from "./ItemsOpened";
 
 function Case(props) {
   /*
   TODO :- add Skip Animation (DONE)
-        - add Unboxing Animation
+        - add Unboxing Animation (DONE)
+        - randomise animation more
+        - add settings menu to control animation
+        - add Auto Opening
         - add Search and Sort for the Items Opened
         - add Views for the Items Opened
   */
@@ -90,7 +94,7 @@ function Case(props) {
       let alts = [...Array(59)].map(() => openCase(caseData));
 
       // getting rare simulation
-      alts[54][0] = "rare";
+      // alts[54][0] = "rare";
 
       if (alts[54][0] == "rare") {
         setRareOpen(true);
@@ -192,14 +196,7 @@ function Case(props) {
         </div>
 
         {/* items you opened */}
-        <h1 className="text-yellow-400 text-xl mt-8">Items you Opened:</h1>
-
-        <div className="flex flex-wrap items-center justify-center m-10 overflow-y-scroll max-h-60 gap-4 p-4 w-full">
-          {itemsOpen.map((x, index) => {
-            const [skinData, luck] = x;
-            return <Item key={index} skinData={skinData} luck={luck} />;
-          })}
-        </div>
+        <ItemsOpened items={itemsOpen} />
       </div>
       {/* slot machine */}
       {open && (

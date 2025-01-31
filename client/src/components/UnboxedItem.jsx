@@ -3,6 +3,11 @@ import { ImCross } from "react-icons/im";
 import { addHexColor } from "./utils";
 import { useState } from "react";
 function UnboxedItem({ item, unbox }) {
+  /*
+  TODO: - add funny messages for each item got
+        - make this component look better
+  */
+
   const [visibility, setVisibility] = useState(unbox);
   console.log(unbox);
 
