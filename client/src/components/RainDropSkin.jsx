@@ -1,65 +1,70 @@
 import { useEffect, useState, useRef } from "react";
-import { cachedSkinData } from "../components/utils";
 import Star from "../components/star.svg?react";
 
-function RainDropSkin({ Duration, Index, Delay }) {
-  const [animDuration, setAnimDuration] = useState(Duration + Delay);
-  const getSkin = () => {
-    return cachedSkinData[Math.floor(Math.random() * cachedSkinData.length)];
-    // return cachedSkinData.find((x) => x.name == "AWP | Dragon Lore");
-  };
+function RainDropSkin({ Duration, Index, Delay, Skin }) {
+  const [pos, setPos] = useState(getRandomPosition());
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef(null);
 
-  const getPosition = () => {
+  function getRandomPosition() {
     return {
-      left: Math.floor(Math.random() * 100) + "vw",
-      top: -10 + "vw", // Start slightly above the viewport
+      left: `${Math.floor(Math.random() * 100)}vw`,
+      top: "-10vw", // Start slightly above the viewport
     };
-  };
-
-  const [skin, setSkin] = useState(getSkin());
-  const [pos, setPos] = useState(getPosition());
-  const imgRef = useRef(null); // Ref to access the <img> element
+  }
 
   useEffect(() => {
-    const imgElement = imgRef.current;
-
-    // Function to handle animation iteration (reset)
     const handleAnimationIteration = () => {
-      setPos(getPosition()); // Reset the position
+      setPos(getRandomPosition());
     };
 
-    // Add event listener for animationiteration
-    imgElement.addEventListener("animationiteration", handleAnimationIteration);
-
-    // Cleanup: Remove event listener on unmount
-    return () => {
-      imgElement.removeEventListener(
+    const imgElement = imgRef.current;
+    if (imgElement) {
+      imgElement.addEventListener(
         "animationiteration",
         handleAnimationIteration
       );
+    }
+
+    return () => {
+      if (imgElement) {
+        imgElement.removeEventListener(
+          "animationiteration",
+          handleAnimationIteration
+        );
+      }
     };
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
+
+  useEffect(() => {
+    if (imgRef.current) {
+      if (imgRef.current.complete) setLoaded(true);
+      else imgRef.current.onload = () => setLoaded(true);
+    }
+  }, [Skin]);
 
   return (
     <div
       style={{
         left: pos.left,
         top: pos.top,
-        animationDelay: Delay + "ms",
-        animationDuration: Duration + "ms", // Sync animation duration with Duration prop
-        animationRangeStart: "50%",
+        animationDelay: `${Delay}ms`,
+        animationDuration: `${Duration}ms`,
       }}
-      className={`w-20 h-16 absolute animate-raindrop-1 animate-spin flex items-center justify-center -z-[${
-        Duration >= 5100 ? 10 : 0
-      }]`}
+      className={`w-20 h-16 absolute animate-raindrop-1 flex items-center justify-center`}
     >
       <img
-        ref={imgRef} // Attach the ref to the <img> element
-        src={skin.image}
-        alt=""
+        ref={imgRef}
+        className={`transition-opacity duration-1000 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        src={Skin?.image || "https://via.placeholder.com/100"}
+        alt={Skin?.name || "Unknown Skin"}
+        loading="lazy"
+        onError={(e) => (e.target.src = "https://via.placeholder.com/100")}
       />
-      {skin.name === "AWP | Dragon Lore" && (
-        <Star className="fill-yellow-500 w-24 absolute h-24 -z-40 animate-[spin_15s_infinite_linear]" />
+      {Skin?.name === "AWP | Dragon Lore" && (
+        <Star className="fill-yellow-500 w-24 absolute h-24 -z-40 animate-spin" />
       )}
     </div>
   );
