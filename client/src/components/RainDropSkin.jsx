@@ -64,7 +64,7 @@ function RainDropSkin({ Duration, Index, Delay, Skin }) {
         onError={(e) => (e.target.src = "https://via.placeholder.com/100")}
       />
       {Skin?.name === "AWP | Dragon Lore" && (
-        <Star className="fill-yellow-500 w-24 absolute h-24 -z-40 animate-spin" />
+        <Star className="fill-yellow-500 w-24 absolute h-24 -z-40 animate-[spin_15s_infinite_linear]" />
       )}
     </div>
   );

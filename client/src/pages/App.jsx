@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import MainWindow from "../components/MainWindow";
 import SideBar from "../components/SideBar";
 // import socket from "./socket";

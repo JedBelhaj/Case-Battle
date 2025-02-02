@@ -6,7 +6,7 @@ function Item({ skinData, luck }) {
 
   // Extract dynamic styles
   const rarityColor = skinData?.rarity?.color || "#ffffff"; // Default to white if no color
-  const itemName = `${skinData.souvenir ? "Souvenir " : ""} ${
+  const itemName = `${skinData?.souvenir ? "Souvenir " : ""} ${
     luck.statTrack ? "StatTrak™ " : ""
   }${skinData?.name}${skinData?.phase ? ` (${skinData.phase})` : ""}`;
 

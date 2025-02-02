@@ -21,6 +21,7 @@ function ItemsOpened({ items }) {
   //   },
   //   rarities: getItemsRarities(items),
   // };
+  console.log(items);
 
   return (
     <>
@@ -38,8 +39,9 @@ function ItemsOpened({ items }) {
 
       <div className="flex flex-wrap items-center justify-center m-10 overflow-y-scroll max-h-60 gap-4 p-4 w-full">
         {items.map((x, index) => {
-          const [skinData, luck] = x;
-          return <Item key={index} skinData={skinData} luck={luck} />;
+          const { skin, luck, rare } = x;
+
+          return <Item key={index} skinData={skin} luck={luck} />;
         })}
       </div>
     </>

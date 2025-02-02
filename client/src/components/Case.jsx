@@ -33,6 +33,7 @@ function Case(props) {
   const [rareOpen, setRareOpen] = useState(false);
   const [unbox, setUnbox] = useState(false);
 
+  // unboxed item logic
   useEffect(() => {
     if (itemsOpen.length !== 0) {
       if (open) {
@@ -43,6 +44,7 @@ function Case(props) {
     }
   }, [open]);
 
+  //input handling
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter") {
@@ -66,13 +68,16 @@ function Case(props) {
     };
   }, [open]);
 
+  //setting items and rarities depending on caseData
   useEffect(() => {
     if (caseData) {
       setItems(caseData.contains);
       setRarities(getCrateRarities(caseData));
+      console.log(rarities);
     }
   }, [caseData]);
 
+  //executes when cancelling case opening animation
   const cleanUpCaseAnimation = () => {
     // FIXME animation lag
 
@@ -89,25 +94,22 @@ function Case(props) {
     timeOutRef.current = setTimeout(() => cleanUpCaseAnimation(), 4500);
   };
 
+  //executes when opening a case, setting the alts for the animation
   useEffect(() => {
     if (open) {
       let alts = [...Array(59)].map(() => openCase(caseData));
-
-      // getting rare simulation
-      // alts[54][0] = "rare";
-
-      if (alts[54][0] == "rare") {
+      if (alts[54].rare) {
         setRareOpen(true);
       }
 
-      const rares = alts.filter((x) => x[0] === "rare");
+      const rares = alts.filter((x) => x.rare);
 
       // handle rares
 
       for (let i = 0; i < rares.length; i++) {
         const rareIndex = alts.indexOf(rares[i]);
         if (rareIndex != 54) {
-          while (alts[rareIndex][0] === "rare") {
+          while (alts[rareIndex].rare) {
             alts[rareIndex] = openCase(caseData);
           }
         }
@@ -119,29 +121,30 @@ function Case(props) {
     }
   }, [open]);
 
+  // setting the opened item
   useEffect(() => {
-    if (alts.length === 59 && open) {
-      if (alts[54][0] === "rare") {
-        alts[54][0] = selectRare(caseData);
-      }
+    if (alts.length >= 55 && open) {
       setItemsOpen((prev) => [...prev, alts[54]]);
-      console.log(alts[54]);
     }
   }, [alts, open]);
+  useEffect(() => {
+    console.log("Updated itemsOpen:", itemsOpen);
+  }, [itemsOpen]);
 
   const simulation = (types) => {
-    const cases = [...Array(simulationSample)].map(() => openCase(caseData));
-    return types.map((x) => [x, cases.filter((y) => y[1].rarity === x).length]);
+    console.log(types);
+
+    const skins = [...Array(simulationSample)].map(() => openCase(caseData));
+
+    return types.map((x) => [
+      x,
+      skins.filter((y) => y.luck.rarity === x).length,
+    ]);
   };
 
   const mockup = (types) => {
     return [...Array(1000)].map(() => {
       const item = openCase(caseData);
-      console.log(item);
-
-      if (item[0] === "rare") {
-        item[0] = selectRare(caseData);
-      }
       return item;
     });
   };
@@ -217,7 +220,7 @@ function Case(props) {
           ${" " + translate}`}
         >
           {alts.map((x, index) => {
-            const item = x[0];
+            const item = x.skin;
 
             if (rareOpen && index == 54) {
               return (

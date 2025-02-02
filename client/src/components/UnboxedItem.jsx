@@ -11,8 +11,8 @@ function UnboxedItem({ item, unbox }) {
   const [visibility, setVisibility] = useState(unbox);
   console.log(unbox);
 
-  console.log(item[0].image);
-  const color = item[0].rarity.color;
+  console.log(item.skin.image);
+  const color = item.skin.rarity.color;
   console.log(color);
 
   return (
@@ -36,8 +36,10 @@ function UnboxedItem({ item, unbox }) {
         style={{ fill: addHexColor(color, "001100") }}
         className="w-96 h-96 animate-[spin_30s_infinite_linear_] absolute"
       />
-      <img className="z-50" src={item[0].image} alt="" />
-      <h1 className="text-6xl z-50 text-white font-oxanium">{item[0].name}</h1>
+      <img className="z-50" src={item.skin.image} alt="" />
+      <h1 className="text-6xl z-50 text-white font-oxanium">
+        {item.skin.name}
+      </h1>
     </div>
   );
 }

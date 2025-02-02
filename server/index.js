@@ -19,8 +19,6 @@ io.on("connection", (socket) => {
   log("User connected: ", socket.id);
 });
 
-io.on("disconnection");
-
 server.listen(3001, () => {
   log("listening...");
 });

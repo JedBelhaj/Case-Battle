@@ -27,16 +27,13 @@ function MainWindow() {
 
   // Generate types dynamically
   const types = useMemo(
-    () => [
-      "All",
-      ...new Set(cases.map((x) => x.type).filter((x) => x !== null)),
-    ],
+    () => [...new Set(cases.map((x) => x.type).filter((x) => x !== null))],
     [cases]
   );
 
   // Filter and sort cases based on the selected type
   const filteredCases = useMemo(
-    () => cases.filter((x) => currType === "All" || x.type === currType),
+    () => cases.filter((x) => x.type === currType),
     [cases, currType]
   );
 

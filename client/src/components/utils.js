@@ -9,6 +9,49 @@ export const cs2RarityColors = {
   rare: ["Exceedingly Rare", "Rare"],
 };
 
+export const baseurl = "api url here";
+
+export const postRequest = async (url, body) => {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    let message;
+
+    if (data?.message) {
+      message = data.message;
+    } else {
+      message = data;
+    }
+    return { error: true, message };
+  }
+  return data;
+};
+
+export const getRequest = async (url, body) => {
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (!response.ok) {
+    let message;
+
+    if (data?.message) {
+      message = data.message;
+    } else {
+      message = data;
+    }
+    return { error: true, message };
+  }
+  return data;
+};
+
 const getCases = await fetch(
   "https://bymykel.github.io/CSGO-API/api/en/crates.json"
 )
@@ -43,6 +86,10 @@ function getSkinData(skinID) {
   return cachedSkinData.find((x) => x.id === skinID);
 }
 
+export function getRandomSkin() {
+  return cachedSkinData[Math.floor(Math.random() * cachedSkinData.length)];
+}
+
 const odds = {
   Case: {
     "#4b69ff": 79.92,
@@ -50,6 +97,11 @@ const odds = {
     "#d32ce6": 3.2,
     "#eb4b4b": 0.64,
     rare: 0.26,
+    // "#4b69ff": 1,
+    // "#8847ff": 0,
+    // "#d32ce6": 0,
+    // "#eb4b4b": 0,
+    // rare: 99,
   },
   Souvenir: {
     "#b0c3d9": 80,
@@ -140,22 +192,17 @@ export const RNG = (caseData) => {
 };
 
 export function selectRare(caseDate) {
-  const knives = caseDate.contains_rare;
-  return randomChoice(knives);
+  return randomChoice(caseDate.contains_rare);
 }
 
 export const openCase = (caseData) => {
   const items = caseData.contains;
   const luck = RNG(caseData);
 
-  if (luck.rarity === "rare") {
-    return ["rare", luck];
-  }
-
   const filteredItems = items.filter((x) => x.rarity.color === luck.rarity);
-  if (filteredItems.length === 0) return [null, luck];
 
-  let skin = randomChoice(filteredItems);
+  let skin =
+    luck.rarity === "rare" ? selectRare(caseData) : randomChoice(filteredItems);
 
   if (caseData.type !== "Sticker Capsule") {
     skin = getSkinData(skin.id);
@@ -167,7 +214,13 @@ export const openCase = (caseData) => {
     luck["wear"] = wear;
   }
 
-  return [skin, luck];
+  const returnValue = {
+    skin,
+    luck,
+    rare: luck.rarity === "rare",
+  };
+
+  return returnValue;
 };
 
 function randomChoice(arr) {
