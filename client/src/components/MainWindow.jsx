@@ -1,8 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import Case from "./Case";
 import { getAllRarities, getCrateRarities } from "./utils";
+import RoomSetup from "./RoomSetup";
 
-function MainWindow() {
+function MainWindow({ gameStarted }) {
+  console.log(gameStarted);
+
   const [cases, setCases] = useState([]);
   const [currType, setCurrType] = useState("Case");
   const [chosenCase, setChosenCase] = useState("");
@@ -66,44 +69,48 @@ function MainWindow() {
           <h1>Wallet: 500$</h1>
         </div>
       </div>
-      <div className="w-full h-full flex items-center justify-center flex-col gap-2 p-8">
-        {/* Choose type */}
-        <div className="text-white bg-zinc-800 p-4 rounded-lg">
-          <label htmlFor="type">Choose a Type:</label>
-          <select
-            onChange={(e) => setCurrType(e.target.value)}
-            value={currType}
-            name="type"
-            id="type"
-            className="bg-zinc-800 m-2"
-          >
-            {types.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+      {gameStarted ? (
+        <div className="w-full h-full flex items-center justify-center flex-col gap-2 p-8">
+          {/* Choose type */}
+          <div className="text-white bg-zinc-800 p-4 rounded-lg">
+            <label htmlFor="type">Choose a Type:</label>
+            <select
+              onChange={(e) => setCurrType(e.target.value)}
+              value={currType}
+              name="type"
+              id="type"
+              className="bg-zinc-800 m-2"
+            >
+              {types.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Choose crate */}
+          <div className="text-white bg-zinc-800 p-4 rounded-lg flex items-center justify-center">
+            <label htmlFor="case">Choose a Case:</label>
+            <select
+              onChange={(e) => setChosenCase(e.target.value)}
+              value={chosenCase}
+              name="case"
+              id="case"
+              className="bg-zinc-800 m-2"
+            >
+              {sortedCases.map((crate) => (
+                <option key={crate.id} value={crate.name}>
+                  {crate.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Display case details */}
+          <Case caseData={sortedCases.find((x) => x.name === chosenCase)} />
         </div>
-        {/* Choose crate */}
-        <div className="text-white bg-zinc-800 p-4 rounded-lg flex items-center justify-center">
-          <label htmlFor="case">Choose a Case:</label>
-          <select
-            onChange={(e) => setChosenCase(e.target.value)}
-            value={chosenCase}
-            name="case"
-            id="case"
-            className="bg-zinc-800 m-2"
-          >
-            {sortedCases.map((crate) => (
-              <option key={crate.id} value={crate.name}>
-                {crate.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Display case details */}
-        <Case caseData={sortedCases.find((x) => x.name === chosenCase)} />
-      </div>
+      ) : (
+        <RoomSetup />
+      )}
     </div>
   );
 }
